@@ -1,15 +1,16 @@
 {
 	"name": "obsidian-sample-plugin",
-	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"version": "0.1.0",
+	"description": "Using AI language model APIs, the plugin suggests and inserts tags.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-		"version": "node version-bump.mjs && git add manifest.json versions.json"
+		"version": "node version-bump.mjs && git add manifest.json versions.json",
+		"update-local": "rm -rf /Users/andy/Documents/Obsidian/AndyObsidianVault_remote/.obsidian/plugins/auto-tag && mkdir -p /Users/andy/Documents/Obsidian/AndyObsidianVault_remote/.obsidian/plugins/auto-tag && cp -r ../auto-tag /Users/andy/Documents/Obsidian/AndyObsidianVault_remote/.obsidian/plugins/"
 	},
 	"keywords": [],
-	"author": "",
+	"author": "Control Alt Dev",
 	"license": "MIT",
 	"devDependencies": {
 		"@types/node": "^16.11.6",

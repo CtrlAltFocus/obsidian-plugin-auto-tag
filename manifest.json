@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
-	"version": "1.0.0",
+	"id": "auto-tag",
+	"name": "Auto Tag",
+	"version": "0.1.0",
 	"minAppVersion": "0.15.0",
-	"description": "This is a sample plugin for Obsidian. This plugin demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Using AI language model APIs, the plugin suggests and inserts tags.",
+	"author": "Control Alt Dev",
+	"authorUrl": "httpshttps://control-alt.dev/",
+	"fundingUrl": "https://control-alt.dev/project-funding",
 	"isDesktopOnly": false
 }
