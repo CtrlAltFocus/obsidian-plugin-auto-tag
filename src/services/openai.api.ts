@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { GptFunction } from './models/openai.models';
+import AutoTagPlugin from 'src/plugin/autoTagPlugin';
 
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 
@@ -93,7 +94,7 @@ export async function getTagSuggestions(inputText: string, openaiApiKey: string)
 
     try {
         const responseData: { tags: string[] } = await fetchOpenAIFunctionCall(openaiApiKey, inputText, gptFunction);
-        console.log('OpenAI API suggested tags:', JSON.stringify(responseData));
+        AutoTagPlugin.Logger.debug('OpenAI API suggested tags:', JSON.stringify(responseData));
 
         // throw error if responseData is not an object that contains "tags" property
         if (!responseData?.tags) {
@@ -112,7 +113,7 @@ export async function getTagSuggestions(inputText: string, openaiApiKey: string)
  */
 export async function fetchOpenAIFunctionCall(openaiApiKey: string, inputText: string, gptFunction: GptFunction): Promise<{ tags: string[] }> {
     if (typeof inputText !== 'string' || inputText.trim().length === 0) {
-        console.warn('fetchOpenAIFunctionCall: invalid input text.', JSON.stringify(inputText));
+        AutoTagPlugin.Logger.warn('fetchOpenAIFunctionCall: invalid input text.', JSON.stringify(inputText));
         throw new Error('fetchOpenAIFunctionCall: invalid input text.');
     }
 
@@ -151,7 +152,7 @@ export async function fetchOpenAIFunctionCall(openaiApiKey: string, inputText: s
             throw new Error('fetchOpenAIFunctionCall: Error: Failed to get tags from OpenAI API.');
         }
     } catch (error) {
-        console.warn(error);
+        AutoTagPlugin.Logger.warn(error);
         throw new Error('fetchOpenAIFunctionCall: Error: ' + error?.response?.data?.error?.message || 'unknown error');
     }
 }
