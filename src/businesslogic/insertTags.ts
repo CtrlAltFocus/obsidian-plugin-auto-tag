@@ -1,5 +1,6 @@
 import AutoTagPlugin from "main";
 import { Editor, EditorPosition, MarkdownView, Notice, parseYaml, stringifyYaml } from "obsidian";
+import { PreUpdateModal } from "src/plugin/modals/preUpdateModal";
 import { AutoTagPluginSettings } from "src/plugin/settings/settings";
 import { getTagSuggestions } from "src/services/openai.api";
 import { createDocumentFragment } from "src/utils/utils";
@@ -120,6 +121,17 @@ export const commandFnInsertTagsForSelectedText = async (editor: Editor, view: M
      * Retrieve tag suggestions.
      */
     const suggestedTags = await getAutoTags(selectedText, settings) || [];
+
+    if (settings.showPreUpdateDialog) {
+
+        // TODO continue to improve this part, split tag fetching and tag insertion, keep it readable
+
+        new PreUpdateModal(app, settings, suggestedTags, (tags: string[]) => {
+            console.debug("tags selected in modal:", JSON.stringify(tags));
+        }).open();
+
+        return;
+    }
 
     /**
      * Insert the tags in the note.

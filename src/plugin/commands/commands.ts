@@ -5,7 +5,7 @@ import { AutoTagActionMenuModal } from "../modals/actionMenuModal";
 
 export function createCommandList(app: App, settings: AutoTagPluginSettings): Command[] {
     return [
-        createCmdAutoTagActionMenuModal(app, settings),
+        // createCmdAutoTagActionMenuModal(app, settings),
         createCmdSelectTextInsertTags(settings),
     ];
 }

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <main>
+        <div class="mx-auto py-6 px-6">
+            <div class="flex justify-between p-3">
+                <div class="flex space-x-3 items-center ring-1 shadow-sm shadow-slate-300 rounded-md px-2 py-1">
+                    <button class="bg-slate-200_ px-3 py-1 rounded-sm">
+                        #autotag/... 
+                    </button>
+                    <div :class="{ 'bg-cyan-700': toggleActive}" class="w-10 h-5 flex items-center bg-gray-300 rounded-full mx-1 px-0.5" @click="handleToggleActive">
+                        <!-- Switch -->
+                        <div class="bg-white w-4 h-4 rounded-full shadow-md transform" :class="{ 'translate-x-7': toggleActive}"></div>
+                    </div>
+                    <!-- <button class="bg-slate-200_ px-3 py-1 rounded-sm">
+                        #autotag/... 
+                    </button> -->
+                </div>
+                <div class="flex"></div>
+            </div>
+            <br>
+            <div class="flex shadow-sm shadow-slate-400 rounded-sm justify-between p-3">
+                <div class="flex">#tag1</div>
+                <div class="flex space-x-3 items-center">
+                    <button class="px-3 py-1 rounded-sm">
+                        ignore
+                    </button>
+                    <div :class="{ 'bg-cyan-700': toggleActive}" class="w-10 h-5 flex items-center bg-gray-300 rounded-full mx-1 px-0.5" @click="handleToggleActive">
+                        <!-- Switch -->
+                        <div class="bg-white w-4 h-4 rounded-full shadow-md transform" :class="{ 'translate-x-7': toggleActive}"></div>
+                    </div>
+                    <!-- <button class="bg-slate-200_ px-3 py-1 rounded-sm">
+                        accept
+                    </button> -->
+                </div>
+            </div>
+            <br>
+            <div class="flex shadow-sm shadow-slate-400 rounded-sm justify-between p-3">
+                <div class="flex">#tag1</div>
+                <div class="flex space-x-3 items-center">
+                    <button class="bg-slate-200_ px-3 py-1 rounded-sm font-semibold">
+                        accept
+                    </button>
+                    <div :class="{ 'bg-cyan-700': toggleActive}" class="w-10 h-5 flex items-center bg-gray-300_ bg-emerald-700 rounded-full mx-1 px-0.5" @click="handleToggleActive">
+                        <!-- Switch -->
+                        <div class="bg-white w-4 h-4 rounded-full shadow-md transform translate-x-5" :class="{ 'translate-x-7': toggleActive}"></div>
+                    </div>
+                    <!-- <button class="bg-emerald-200 px-3 py-1 rounded-sm">
+                        accept
+                    </button> -->
+                </div>
+            </div>
+        </div>    
+    </main>
+</body>
+</html>

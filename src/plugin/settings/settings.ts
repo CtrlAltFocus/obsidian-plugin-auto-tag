@@ -3,16 +3,17 @@
  * https://www.programcreek.com/typescript/?api=obsidian.ButtonComponent
  */
 
-import { App, ButtonComponent, Notice, PluginSettingTab, Setting } from "obsidian";
+import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import { OPENAI_API_MODELS } from "src/services/openai.api";
 import AutoTagPlugin from "../autoTagPlugin";
 import { createDocumentFragment } from "src/utils/utils";
-import { AutoTagActionMenuModal } from "../modals/actionMenuModal";
 
 export interface AutoTagPluginSettings {
     useAutotagPrefix: boolean;
     useFrontmatterAutotagsKey: boolean;
     tagsToInsert: number;
+    showPreUpdateDialog: boolean;
+    showPostUpdateDialog: boolean;
     demoMode: boolean;
     writeToLogFile: boolean;
     openaiApiKey: string;
@@ -23,6 +24,8 @@ export const DEFAULT_SETTINGS: AutoTagPluginSettings = {
     useAutotagPrefix: true,
     useFrontmatterAutotagsKey: false,
     tagsToInsert: 3,
+    showPreUpdateDialog: true,
+    showPostUpdateDialog: true,
     demoMode: true,
     writeToLogFile: true,
     openaiApiKey: "",
@@ -91,6 +94,25 @@ export class AutoTagSettingTab extends PluginSettingTab {
                     this.plugin.settings.tagsToInsert = parseInt(value);
                     await this.plugin.saveSettings();
                 }));
+
+        /*
+        Possible names for this:
+        ** "Tag change approval" (or "Tag change confirmation")
+        ** "Pre-update tag summary" (or "Summary of tag changes") 
+        "Tag update confirmation" (or "Tag update approval")
+        "Suggested tag changes" (or "Suggested tag updates")
+        "Tag review and edit" (or ** "Auto tags review and approval")
+        */
+        new Setting(containerEl)
+            .setName("Auto tags review and approval BEFORE applying applying any changes")
+            .setDesc(createDocumentFragment("Shows the suggested tags that will be added to the note.<br>You can make changes before accepting them."))
+            .addToggle(toggle => {
+                toggle.setValue(this.plugin.settings.showPreUpdateDialog);
+                toggle.onChange(async (toggleValue: boolean) => {
+                    this.plugin.settings.showPreUpdateDialog = toggleValue;
+                    await this.plugin.saveSettings();
+                });
+            });
 
         new Setting(containerEl)
             .setName(`Expected something different? or more?`)
@@ -179,15 +201,16 @@ export class AutoTagSettingTab extends PluginSettingTab {
                 });
             });
 
-        // TODO low prio: a button to clear (empty) the log file manually
+        // TODO add a way to view the file (display in a modal or so?)
+        // TODO low prio: a button to clear (empty) the log file manually (show it when viewing the contents.. to avoid accidental clearing)
 
-        new ButtonComponent(containerEl)
-            .setButtonText('Show all known tags and auto tags')
-            .onClick(async () => {
+        // new ButtonComponent(containerEl)
+        //     .setButtonText('Show all known tags and auto tags')
+        //     .onClick(async () => {
 
-                new AutoTagActionMenuModal(app, this.plugin.settings).open();
-                new Notice('Not implemented yet.');
-            });
+        //         new AutoTagActionMenuModal(app, this.plugin.settings).open();
+        //         new Notice('Not implemented yet.');
+        //     });
 
         // TODO: add a button to view the list of known tags across all files
 
