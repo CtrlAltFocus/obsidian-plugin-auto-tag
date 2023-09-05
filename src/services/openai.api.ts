@@ -89,7 +89,7 @@ export async function getTagSuggestions(inputText: string, openaiApiKey: string)
  * Uses Function Calling to easily handle the response.
  */
 export async function fetchOpenAIFunctionCall(openaiApiKey: string, inputText: string, gptFunction: GptFunction): Promise<{ tags: string[] }> {
-    if (typeof inputText !== 'string' || inputText.trim().length === 0) {
+    if (inputText.trim().length === 0) {
         AutoTagPlugin.Logger.warn('fetchOpenAIFunctionCall: invalid input text.', JSON.stringify(inputText));
         throw new Error('fetchOpenAIFunctionCall: invalid input text.');
     }

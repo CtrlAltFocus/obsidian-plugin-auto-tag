@@ -1,4 +1,4 @@
-import React, {ReactElement, ReactNode} from "react";
+import React, {ReactElement} from "react";
 import {ToggleButton} from "../../../react/shared-components/ToggleButton";
 import classNames from "classnames";
 

@@ -1,4 +1,4 @@
-import { Command, Notice, Plugin, addIcon } from 'obsidian';
+import { Command, Plugin } from 'obsidian';
 import { AutoTagPluginSettings, AutoTagSettingTab, DEFAULT_SETTINGS } from 'src/plugin/settings/settings';
 import Logger from './Logger';
 import { createCommandList } from './commands/commands';

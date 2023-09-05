@@ -1,4 +1,4 @@
-import {App, FileSystemAdapter, Notice, PluginSettingTab, Setting, TFile} from "obsidian";
+import {App, FileSystemAdapter, Notice, PluginSettingTab, Setting} from "obsidian";
 import {OPENAI_API_MODELS} from "src/services/openai.api";
 import AutoTagPlugin from "../autoTagPlugin";
 import {createDocumentFragment} from "src/utils/utils";
