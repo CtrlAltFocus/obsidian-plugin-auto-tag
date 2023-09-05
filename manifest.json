@@ -1,11 +1,11 @@
 {
 	"id": "auto-tag",
 	"name": "Auto Tag",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"minAppVersion": "0.15.0",
-	"description": "Using AI language model APIs, the plugin suggests and inserts tags.",
-	"author": "Control Alt Dev",
-	"authorUrl": "httpshttps://control-alt.dev/",
-	"fundingUrl": "https://control-alt.dev/project-funding",
+	"description": "[BETA! Safe to use, features lacking] Helps you automatically tag a note or selected text.",
+	"author": "Control Alt",
+	"authorUrl": "https://control-alt.dev/",
+	"fundingUrl": "",
 	"isDesktopOnly": false
 }

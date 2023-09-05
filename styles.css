@@ -6,3 +6,7 @@ available in the app when your plugin is enabled.
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.autotag-plugin__toggle--active .label-right {
+  font-weight: 500;
+}
