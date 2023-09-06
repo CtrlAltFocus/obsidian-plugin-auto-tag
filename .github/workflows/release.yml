@@ -21,6 +21,9 @@ jobs:
         run: |
           npm install
           npm run build
+          npm run build-css
+          cp dist/styles.css styles.css
+          cp dist/main.js main.js
 
       - name: Create release
         env:
