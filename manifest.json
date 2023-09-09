@@ -1,7 +1,7 @@
 {
 	"id": "auto-tag",
 	"name": "Auto Tag",
-	"version": "0.2.4",
+	"version": "0.2.5",
 	"minAppVersion": "0.15.0",
 	"description": "[BETA! Safe to use, features lacking] Helps you automatically tag a note or selected text.",
 	"author": "Control Alt",
