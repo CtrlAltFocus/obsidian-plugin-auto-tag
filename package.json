@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-plugin-auto-tag",
-	"version": "0.2.5",
+	"version": "0.2.6",
 	"description": "Helps you automatically tag a note or selected text.",
 	"main": "main.js",
 	"scripts": {
