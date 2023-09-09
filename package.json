@@ -1,0 +1,41 @@
+{
+	"name": "obsidian-plugin-auto-tag",
+	"version": "0.2.6",
+	"description": "Helps you automatically tag a note or selected text.",
+	"main": "main.js",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "rm -rf ./dist/*.js && tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"build-css": "rm -rf ./dist/*.css && npx tailwindcss -i ./styles.css -o ./dist/styles.css",
+		"version": "node version-bump.mjs && git add manifest.json versions.json"
+	},
+	"keywords": ["plugin", "obsidian", "tag", "classification"],
+	"author": "Control Alt",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/axios": "^0.14.0",
+		"@types/classnames": "^2.3.1",
+		"@types/node": "^16.11.6",
+		"@types/react": "^18.2.21",
+		"@types/react-dom": "^18.2.7",
+		"@typescript-eslint/eslint-plugin": "5.29.0",
+		"@typescript-eslint/parser": "5.29.0",
+		"autoprefixer": "^10.4.15",
+		"builtin-modules": "3.3.0",
+		"classnames": "^2.3.2",
+		"esbuild": "^0.19.2",
+		"esbuild-sass-plugin": "^2.13.0",
+		"obsidian": "latest",
+		"postcss": "^8.4.28",
+		"postcss-import": "^15.1.0",
+		"tslib": "2.4.0",
+		"typescript": "4.7.4"
+	},
+	"dependencies": {
+		"axios": "^1.4.0",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"tailwindcss": "^3.3.3",
+		"yaml": "^2.3.1"
+	}
+}
