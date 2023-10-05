@@ -45,12 +45,10 @@ export class AutoTagSettingTab extends PluginSettingTab {
 		 ***************************************/
 
 		new Setting(containerEl)
-		.setHeading()
-		.setName('Tag insertion options');
-
-		new Setting(containerEl)
 		.setName(`Prefix newly suggested tags with "#autotag/"`)
-		.setDesc(createDocumentFragment(`Example: "#autotag/recipe" instead of "#recipe".\nRead about the benefits and use cases of <a href='https://duckduckgo.com' target='_blank'>nested tags</a>.`))
+		.setDesc(
+			createDocumentFragment(`Example: "#autotag/recipe" instead of "#recipe".<br>Read about the benefits and use cases of <a href='https://duckduckgo.com' target='_blank'>nested tags</a>.`)
+		)
 		.addToggle(toggle => {
 			toggle.setValue(this.plugin.settings.useAutotagPrefix)
 			toggle.onChange(async (toggleValue: boolean) => {
@@ -138,7 +136,7 @@ export class AutoTagSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 		.setHeading()
-		.setName(`Service provider settings`);
+		.setName(`Service provider`);
 
 		new Setting(containerEl)
 		.setName(`Service provider to find tags from text`)
@@ -184,7 +182,7 @@ export class AutoTagSettingTab extends PluginSettingTab {
 		.setName('Debugging info & stats');
 
 		let logFilePath;
-		let adapter = app.vault.adapter;
+		const adapter = app.vault.adapter;
 		if (adapter instanceof FileSystemAdapter) {
 			logFilePath = `${adapter.getBasePath()}/${this.plugin.manifest.dir}/autotag.log`;
 		}

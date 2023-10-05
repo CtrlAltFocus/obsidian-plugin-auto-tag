@@ -2,9 +2,18 @@
 
 Easily generate relevant tags for your Obsidian notes using the power of OpenAI.
 
+## Beta notice
+
+This plugin is considered in beta, until it has been tested by a larger number of users.
+
+You may encounter new bugs, and the plugin may not work as expected. Please report any issues you encounter on GitHub 
+or reach out to me on X(twitter) @ctrl_alt_focus.
+
 ## Overview
 
-The Auto Tag plugin for Obsidian assists users in automatically generating tags for their notes. Whether you're unsure about which tags to use, forget to add them, or simply want to enhance your note's metadata, this plugin has got you covered.
+The Auto Tag plugin for Obsidian assists users in automatically generating tags for their notes. 
+Whether you're unsure about which tags to use, forget to add them, or simply want to enhance your note's metadata, 
+this plugin has got you covered.
 
 ## Features
 

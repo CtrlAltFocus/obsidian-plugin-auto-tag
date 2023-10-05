@@ -17,7 +17,8 @@ const getAutoTags = async (inputText: string, settings: AutoTagPluginSettings) =
     } else if (settings.openaiApiKey.length > 0) {
         autotags = await getTagSuggestions(inputText, settings.openaiApiKey) || [];
     } else {
-		new Notice(createDocumentFragment(`<strong>Auto Tag plugin</strong><br>Error: OpenAI API key is missing. Please add it in the plugin settings.`));
+		const notice = createDocumentFragment(`<strong>Auto Tag plugin</strong><br>Error: OpenAI API key is missing. Please add it in the plugin settings.`);
+		new Notice(notice);
 		return [];
 	}
 
@@ -84,11 +85,13 @@ export const insertTagsInFrontMatter = (newTags: string[], editor: Editor, setti
             const updatedContent = `---\n${stringifyYaml(newFrontMatter).trim()}\n---\n\n${content.trimStart()}`;
             editor.setValue(updatedContent);
         }
-		new Notice(createDocumentFragment(`<strong>Auto Tag plugin</strong><br>${newTags.length} tags inserted`));
+		const notice = createDocumentFragment(`<strong>Auto Tag plugin</strong><br>${newTags.length} tags inserted`);
+		new Notice(notice);
 		AutoTagPlugin.Logger.log(`Inserted ${newTags.length} tags in frontmatter [${newTags.map((tag) => `#${tag}`).join(", ")}]`);
     } catch (error) {
         AutoTagPlugin.Logger.error(error);
-        new Notice(createDocumentFragment(`<strong>Auto Tag plugin</strong><br>Error: ${error.message}`));
+		const notice = createDocumentFragment(`<strong>Auto Tag plugin</strong><br>Error: {{errorMessage}}`, {errorMessage: error.message});
+		new Notice(notice);
         return false;
     }
 
@@ -116,7 +119,8 @@ const insertTags = (insertLocation: "frontmatter" | "after-selection" | "before-
 		// TODO insert tags before the selected text
 	} else {
 		AutoTagPlugin.Logger.error(`Unknown insertLocation: ${insertLocation}`);
-		new Notice(createDocumentFragment("<strong>Auto Tag plugin</strong><br>Unknown insertLocation."));
+		const notice = createDocumentFragment(`<strong>Auto Tag plugin</strong><br>Unknown insertLocation.`);
+		new Notice(notice);
 	}
 }
 
@@ -138,12 +142,14 @@ export const commandFnInsertTagsForSelectedText = async (editor: Editor, view: M
         selectedText = editor.getValue();
 		AutoTagPlugin.Logger.debug(`Finding tags for full note contents (${selectedText.length} chars)`);
     } else {
-        new Notice(createDocumentFragment("<strong>Auto Tag plugin</strong><br>Please select some text first."));
+		const notice = createDocumentFragment(`<strong>Auto Tag plugin</strong><br>Please select some text first.`);
+		new Notice(notice);
         return;
     }
 
 	if (!settings.demoMode && (settings.openaiApiKey.length === 0 || !settings.openaiApiKey)) {
-		new Notice(createDocumentFragment(`<strong>Auto Tag plugin</strong><br>Error: OpenAI API key is missing. Please add it in the plugin settings.`));
+		const notice = createDocumentFragment(`<strong>Auto Tag plugin</strong><br>Error: OpenAI API key is missing. Please add it in the plugin settings.`);
+		new Notice(notice);
 		return;
 	}
 

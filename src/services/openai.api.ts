@@ -49,6 +49,7 @@ export async function getTagSuggestions(inputText: string, openaiApiKey: string)
 
 	const gptFunction: GptFunction = {
         name: 'getTagSuggestions',
+		// TODO set max number of tags to return based on value in settings
         description: 'Suggest the best matching tags that describe the provided input text. At least 1 tag returned.',
         parameters: {
             type: 'object',
@@ -74,7 +75,7 @@ export async function getTagSuggestions(inputText: string, openaiApiKey: string)
 			return responseData.tags;
 		} else if (responseData?.error) {
 			AutoTagPlugin.Logger.error('OpenAI API response is missing a "tags" property.', JSON.stringify(responseData));
-			new Notice(createDocumentFragment(`<strong>Auto Tag plugin</strong><br>Error: ${responseData.error.message}`));
+			new Notice(createDocumentFragment(`<strong>Auto Tag plugin</strong><br>Error: {{errorMessage}}`, {errorMessage: responseData.error.message}));
             throw new Error('OpenAI API response is missing a "tags" property.');
         }
     } catch (error) {
