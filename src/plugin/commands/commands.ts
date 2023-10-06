@@ -10,7 +10,7 @@ export function createCommandList(app: App, settings: AutoTagPluginSettings): Co
 
 export function createCmdSelectTextInsertTags(settings: AutoTagPluginSettings): Command {
     return {
-        id: 'auto-tag--select-text-insert-tags',
+        id: 'select-text-insert-tags',
         name: 'insert tags for selected text (insert before/after + frontmatter)',
         editorCallback: async (editor: Editor, view: MarkdownView) => commandFnInsertTagsForSelectedText(editor, view, settings),
     };
