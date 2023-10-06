@@ -23,11 +23,11 @@ export const createDocumentFragment = (htmlString: string, unsafeValues: Record<
 		safeHtmlString = safeHtmlString.replace(new RegExp(`{{${placeholder}}}`, 'g'), safeValue);
 	}
 
-	const tempContainer = document.createElement('div');
-	tempContainer.innerHTML = safeHtmlString;
+	const parser = new DOMParser();
+	const parsedDoc = parser.parseFromString(safeHtmlString, 'text/html');
 
-	while (tempContainer.firstChild) {
-		fragment.appendChild(tempContainer.firstChild);
+	while (parsedDoc.body.firstChild) {
+		fragment.appendChild(parsedDoc.body.firstChild);
 	}
 
 	return fragment;
