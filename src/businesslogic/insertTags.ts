@@ -31,12 +31,17 @@ const getAutoTags = async (inputText: string, settings: AutoTagPluginSettings) =
 /**
  * Inserts or updates the "tags" field in the frontmatter of a document.
  *
+ * @param view
  * @param newTags - An array of tags to be inserted or appended.
  * @param editor - The editor instance containing the content to modify.
  * @param settings - The AutoTagPluginSettings object, may help indicate how to insert the tags, under which key.
  * @returns A boolean indicating whether the operation was successful or not.
  */
 export const insertTagsInFrontMatter = async (view: MarkdownView, newTags: string[], editor: Editor, settings: AutoTagPluginSettings): Promise<boolean> => {
+	if (!view.file) {
+		AutoTagPlugin.Logger.error("insertTagsInFrontMatter: view.file is null.");
+		return false;
+	}
 	try {
 		const frontmatterKey = settings.useFrontmatterAutotagsKey ? 'autotags' : 'tags';
 
