@@ -22,7 +22,7 @@ export const DEFAULT_SETTINGS: AutoTagPluginSettings = {
 	showPreUpdateDialog: true,
 	showPostUpdateDialog: true,
 	demoMode: true,
-	writeToLogFile: true,
+	writeToLogFile: false,
 	openaiApiKey: "",
 	openaiModel: OPENAI_API_MODELS[0].id,
 }
@@ -41,8 +41,24 @@ export class AutoTagSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		/***************************************
+		 *    Feedback & support
+		 ***************************************/
+
+		new Setting(containerEl)
+		.setName('Feedback')
+		.setDesc(createDocumentFragment(`This plugin is new. Your feedback helps shape what it becomes.<br><a href="https://forms.gle/6XWpoHKXRqzSKyZj7" target="_blank">Link to your feedback form</a>.`))
+
+		new Setting(containerEl)
+		.setName(`Expected something different? or more?`)
+		.setDesc(createDocumentFragment(`Please <strong>share your feedback</strong>, dislikes, requests.<br>- by email at <a href="mailto:control.alt.focus@gmail.com">control.alt.focus@gmail.com</a><br>- on X (= Twitter) <a href="https://twitter.com/ctrl_alt_focus" target="_blank"><strong>@ctrl_alt_focus</strong></a>`));
+
+		/***************************************
 		 *    Main tag settings
 		 ***************************************/
+
+		new Setting(containerEl)
+		.setHeading()
+		.setName('Tagging options');
 
 		new Setting(containerEl)
 		.setName(`Prefix newly suggested tags with "#autotag/"`)
@@ -106,10 +122,6 @@ export class AutoTagSettingTab extends PluginSettingTab {
 				await this.plugin.saveSettings();
 			});
 		});
-
-		new Setting(containerEl)
-		.setName(`Expected something different? or more?`)
-		.setDesc(createDocumentFragment(`Please <strong>share your feedback</strong>, dislikes, requests.<br>- by email at <a href="mailto:control.alt.focus@gmail.com">control.alt.focus@gmail.com</a><br>- on X (= Twitter) <a href="https://twitter.com/ctrl_alt_focus" target="_blank"><strong>@ctrl_alt_focus</strong></a>`));
 
 		/***************************************
 		 *    Demo settings
@@ -185,17 +197,17 @@ export class AutoTagSettingTab extends PluginSettingTab {
 		const adapter = app.vault.adapter;
 		if (adapter instanceof FileSystemAdapter) {
 			logFilePath = `${adapter.getBasePath()}/${this.plugin.manifest.dir}/autotag.log`;
-		}
 
-		new Setting(containerEl)
-		.setName("Write logs to a log file")
-		.setDesc(createDocumentFragment("Helpful for to see what actions the plugin took and what the results were.<br>Log file location:<br>" + (logFilePath ? `<strong>${logFilePath}</strong>` : "(the plugin folder could not be determined)")))
-		.addToggle(toggle => {
-			toggle.setValue(this.plugin.settings.writeToLogFile);
-			toggle.onChange(async (toggleValue: boolean) => {
-				this.plugin.settings.writeToLogFile = toggleValue;
-				await this.plugin.saveSettings();
+			new Setting(containerEl)
+			.setName("Write logs to a log file")
+			.setDesc(createDocumentFragment("Helpful for to see what actions the plugin took and what the results were.<br>Log file location:<br>" + (logFilePath ? `<strong>${logFilePath}</strong>` : "(the plugin folder could not be determined)")))
+			.addToggle(toggle => {
+				toggle.setValue(this.plugin.settings.writeToLogFile);
+				toggle.onChange(async (toggleValue: boolean) => {
+					this.plugin.settings.writeToLogFile = toggleValue;
+					await this.plugin.saveSettings();
+				});
 			});
-		});
+		}
 	}
 }

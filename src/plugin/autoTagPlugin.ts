@@ -10,8 +10,8 @@ export default class AutoTagPlugin extends Plugin {
     async onload() {
         await this.loadSettings();
 
-        AutoTagPlugin.Logger.initialize(this.app, this.settings, this.manifest);
-        Logger.log("AutoTag Logger loaded");
+        await AutoTagPlugin.Logger.initialize(this.app, this.settings, this.manifest);
+        await Logger.log("AutoTag Logger loaded");
 
         /***************************************
          *    Initialize the commands

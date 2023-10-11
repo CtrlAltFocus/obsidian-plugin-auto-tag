@@ -2,18 +2,10 @@
 
 Easily generate relevant tags for your Obsidian notes using the power of OpenAI.
 
-## Beta notice
-
-This plugin is considered in beta, until it has been tested by a larger number of users.
-
-You may encounter new bugs, and the plugin may not work as expected. Please report any issues you encounter on GitHub 
-or reach out to me on X(twitter) @ctrl_alt_focus.
-
 ## Overview
 
 The Auto Tag plugin for Obsidian assists users in automatically generating tags for their notes. 
-Whether you're unsure about which tags to use, forget to add them, or simply want to enhance your note's metadata, 
-this plugin has got you covered.
+Whether you're unsure about which tags to use, forget to add them, or simply want to enhance your note's metadata, this plugin has got you covered.
 
 ## Features
 
@@ -21,6 +13,17 @@ this plugin has got you covered.
 - **Frontmatter Integration**: Automatically inserts tags into the note's frontmatter. If frontmatter doesn't exist, the plugin creates it.
 - **OpenAI Powered**: Utilizes OpenAI's API to ensure accurate and relevant tag suggestions.
 - **Demo Mode**: Try out the plugin's functionality and settings combinations without needing an API key.
+
+## Beta notice
+
+This plugin is considered in beta, until it has been tested by a larger number of users.
+
+If you find bugs, or if the plugin did not do what you hoped or expected, you can go to github and [create an issue](https://github.com/CtrlAltFocus/obsidian-plugin-auto-tag/issues).
+If you'd rather message me, that's OK too!
+
+- Use the [Online feedback form](https://forms.gle/6XWpoHKXRqzSKyZj7)
+- Email me (control.alt.focus@gmail.com)
+- Message me on X (twitter) @ctrl_alt_focus
 
 ## Getting Started
 
