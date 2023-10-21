@@ -40,13 +40,14 @@ class Logger {
 		}
 	}
 
-	private async writeToLogFile(message: string, extra?: any) {
+	private async writeToLogFile(message: string, extra?: unknown) {
 		if (this.settings.writeToLogFile && this.logFilePath) {
 			try {
 				await this.initializeLogFile();
 			} catch (error) {
 				console.error('Error initializing log file:', error);
 				new Notice(`Error initializing log file: ${error?.message || JSON.stringify(error, null, 2)}`);
+				return;
 			}
 
 			const timestamp = new Date().toLocaleString();
@@ -58,7 +59,6 @@ class Logger {
 			}
 
 			// TODO best not to log the `extra` by default, but maybe have a setting for it later that can be activated for debugging
-
 		}
 	}
 
@@ -78,7 +78,7 @@ class Logger {
 		return true;
 	}
 
-	static async log(message: string, extra?: any) {
+	static async log(message: string, extra?: unknown) {
 		const prefix = "[autotag][log] ";
 		if (extra)
 			console.log(prefix + message, extra);
@@ -89,7 +89,7 @@ class Logger {
 		await this._instance?.writeToLogFile(prefix + message, extra);
 	}
 
-	static async debug(message: string, extra?: any) {
+	static async debug(message: string, extra?: unknown) {
 		const prefix = "[autotag][dbg] ";
 		if (extra)
 			console.debug(prefix + message, extra);
@@ -100,7 +100,7 @@ class Logger {
 		await this._instance?.writeToLogFile(prefix + message, extra);
 	}
 
-	static async warn(message: string, extra?: any) {
+	static async warn(message: string, extra?: unknown) {
 		const prefix = "[autotag][wrn] ";
 		if (extra)
 			console.warn(prefix + message, extra);
@@ -111,7 +111,7 @@ class Logger {
 		await this._instance?.writeToLogFile(prefix + message, extra);
 	}
 
-	static async error(message: string, extra?: any) {
+	static async error(message: string, extra?: unknown) {
 		const prefix = "[autotag][err] ";
 		if (extra)
 			console.error(prefix + message, extra);

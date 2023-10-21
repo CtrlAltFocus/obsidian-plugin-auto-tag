@@ -12,13 +12,21 @@ import {createDocumentFragment} from "src/utils/utils";
 const getAutoTags = async (inputText: string, settings: AutoTagPluginSettings) => {
 	let autotags: string[];
 	if (settings.demoMode) {
-		autotags = ["recipe", "food", "healthy"];
+		autotags = ["recipe", "food", "healthy and tasty"];
 	} else if (settings.openaiApiKey.length > 0) {
 		autotags = await getTagSuggestions(inputText, settings.openaiApiKey) || [];
 	} else {
 		const notice = createDocumentFragment(`<strong>Auto Tag plugin</strong><br>Error: OpenAI API key is missing. Please add it in the plugin settings.`);
 		new Notice(notice);
 		return [];
+	}
+
+	try {
+		autotags = autotags.filter((tag) => tag.length > 0).map((tag) => tag.replace(/[ .,;:/\\?!@#$%^&*{}"'|<>~`§±¡™£¢∞¶•ªº–≠“‘æ…≥≤œ∑´®†¥¨ˆøπåß∂ƒ©˙∆˚¬Ω≈√∫˜()[\]=+\-_]+/g, '-'));
+	} catch (error) {
+		AutoTagPlugin.Logger.error(error);
+		const notice = createDocumentFragment(`<strong>Auto Tag plugin</strong><br>Error sanitizing tags: {{errorMessage}}`, {errorMessage: error.message});
+		new Notice(notice);
 	}
 
 	if (settings.useAutotagPrefix) {
