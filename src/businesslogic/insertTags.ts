@@ -3,7 +3,8 @@ import {Editor, EditorPosition, MarkdownView, Notice} from "obsidian";
 import {PreUpdateModal} from "src/plugin/modals/preUpdateModal/preUpdateModal";
 import {AutoTagPluginSettings} from "src/plugin/settings/settings";
 import {getTagSuggestions} from "src/services/openai.api";
-import {createDocumentFragment} from "src/utils/utils";
+import {createDocumentFragment, customCaseConversion} from "src/utils/utils";
+import {kebabCase, camelCase, pascalCase, snakeCase, constantCase, pascalSnakeCase, trainCase} from "change-case";
 
 // Several combinations:
 // - insert demo tags or real tags (real -> fetch them first)
@@ -12,7 +13,28 @@ import {createDocumentFragment} from "src/utils/utils";
 const getAutoTags = async (inputText: string, settings: AutoTagPluginSettings) => {
 	let autotags: string[];
 	if (settings.demoMode) {
-		autotags = ["recipe", "food", "healthy and tasty"];
+		autotags = [
+			// English
+			"Healthy and Tasty",
+			// French
+			"Cuisine Facile",
+			// Chinese
+			"健康美味",
+			// Japanese
+			"健康的な美味しい",
+			// Korean
+			"건강하고 맛있는",
+			// Arabic
+			"طعام صحي",
+			// Russian
+			"Здоровая еда",
+			// Hindi
+			"स्वास्थ्यकर और स्वादिष्ट",
+			// Thai
+			"อาหารที่ดีต่อสุขภาพ",
+			// Portuguese
+			"Comida Saudável"
+		];
 	} else if (settings.openaiApiKey.length > 0) {
 		autotags = await getTagSuggestions(inputText, settings.openaiApiKey) || [];
 	} else {
@@ -22,7 +44,43 @@ const getAutoTags = async (inputText: string, settings: AutoTagPluginSettings) =
 	}
 
 	try {
-		autotags = autotags.filter((tag) => tag.length > 0).map((tag) => tag.replace(/[ .,;:/\\?!@#$%^&*{}"'|<>~`§±¡™£¢∞¶•ªº–≠“‘æ…≥≤œ∑´®†¥¨ˆøπåß∂ƒ©˙∆˚¬Ω≈√∫˜()[\]=+\-_]+/g, '-'));
+		// Avoid empty tags
+		autotags = autotags.filter((tag) => tag.length > 0);
+
+		// Remove accents from letters (unneeded unless I add an option for users of languages such as french)
+		// autotags = autotags.map((tag) => tag.normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+
+		// Remove punctuation and various symbols that have no place in tags (unneeded probably; keeping as backup as it's tested and works well)
+		// autotags = autotags.map((tag) => tag.replace(/[-_/\\@#$%^&*{}"'|<>~`’”§±¡™£¢∞¶•ªº–≠“‘æ…≥≤œ∑´®†¥¨ˆøπåß∂ƒ©˙∆˚¬Ω≈√∫˜()[\]=+]+/g, ''));
+
+		// Apply tag formatting preference
+		autotags = autotags.map((tag) => {
+			// Check if tag contains any characters outside of the Basic Latin and Latin-1 Supplement blocks
+			const notLatin = /[^\u0020-\u007F\u0080-\u00FF\u0100-\u017F\u0180-\u024F]/.test(tag);
+
+			if (notLatin) {
+				return customCaseConversion(tag, settings.tagsFormat);
+			}
+
+			switch (settings.tagsFormat) {
+				case "kebabCase":
+					return kebabCase(tag);
+				case "snakeCase":
+					return snakeCase(tag);
+				case "pascalCase":
+					return pascalCase(tag);
+				case "camelCase":
+					return camelCase(tag);
+				case "constantCase":
+					return constantCase(tag);
+				case "pascalSnakeCase":
+					return pascalSnakeCase(tag);
+				case "trainCase":
+					return trainCase(tag);
+				default:
+					return kebabCase(tag);
+			}
+		});
 	} catch (error) {
 		AutoTagPlugin.Logger.error(error);
 		const notice = createDocumentFragment(`<strong>Auto Tag plugin</strong><br>Error sanitizing tags: {{errorMessage}}`, {errorMessage: error.message});
@@ -53,7 +111,10 @@ export const insertTagsInFrontMatter = async (view: MarkdownView, newTags: strin
 	try {
 		const frontmatterKey = settings.useFrontmatterAutotagsKey ? 'autotags' : 'tags';
 
-		await view.app.fileManager.processFrontMatter(view.file, (frontmatter: { autotags?: string[]; tags: string[] }) => {
+		await view.app.fileManager.processFrontMatter(view.file, (frontmatter: {
+			autotags?: string[];
+			tags: string[]
+		}) => {
 			if (!frontmatter[frontmatterKey]) {
 				AutoTagPlugin.Logger.log(`Front matter ${frontmatterKey} key created.`);
 			}

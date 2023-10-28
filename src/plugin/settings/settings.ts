@@ -7,6 +7,7 @@ export interface AutoTagPluginSettings {
 	useAutotagPrefix: boolean;
 	useFrontmatterAutotagsKey: boolean;
 	tagsToInsert: number;
+	tagsFormat: "kebabCase"|"snakeCase"|"pascalCase"|"camelCase"| "pascalSnakeCase"|"trainCase"|"constantCase";
 	showPreUpdateDialog: boolean;
 	showPostUpdateDialog: boolean;
 	demoMode: boolean;
@@ -19,6 +20,7 @@ export const DEFAULT_SETTINGS: AutoTagPluginSettings = {
 	useAutotagPrefix: true,
 	useFrontmatterAutotagsKey: false,
 	tagsToInsert: 3,
+	tagsFormat: "kebabCase",
 	showPreUpdateDialog: true,
 	showPostUpdateDialog: true,
 	demoMode: true,
@@ -101,6 +103,23 @@ export class AutoTagSettingTab extends PluginSettingTab {
 		.setValue(`${this.plugin.settings.tagsToInsert}`)
 		.onChange(async (value) => {
 			this.plugin.settings.tagsToInsert = parseInt(value);
+			await this.plugin.saveSettings();
+		}));
+
+		new Setting(containerEl)
+		.setName('How to format tags?')
+		.setDesc('You can indicate your own preference. Only applies to new suggested tags, does not update existing tags.')
+		.addDropdown(dropdown => dropdown
+		.addOption("kebabCase", 'two-words (kebak case)')
+		.addOption("snakeCase", 'two_words (snake case)')
+		.addOption("pascalCase", 'TwoWords (pascal case)')
+		.addOption("camelCase", 'twoWords (camel case)')
+		.addOption("pascalSnakeCase", 'Two_Words (pascal snake case)')
+		.addOption("trainCase", 'Two-Words (train case)')
+		.addOption("constantCase", 'TWO_WORDS (constant case)')
+		.setValue(`${this.plugin.settings.tagsFormat}`)
+		.onChange(async (value) => {
+			this.plugin.settings.tagsFormat = value as AutoTagPluginSettings["tagsFormat"];
 			await this.plugin.saveSettings();
 		}));
 
