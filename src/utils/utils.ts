@@ -32,3 +32,25 @@ export const createDocumentFragment = (htmlString: string, unsafeValues: Record<
 
 	return fragment;
 }
+
+/**
+ * Used when applying formatting to tags.
+ * For some languages, the change-case library outputs a wrong result, so
+ * we handle it in a simpler custom manner.
+ *
+ * @param tag
+ * @param format
+ */
+export function customCaseConversion(tag: string, format: string): string {
+	switch (format) {
+		case 'kebabCase':
+		case 'trainCase':
+			return tag.replace(/\s+/g, '-');
+		case 'snakeCase':
+		case 'pascalSnakeCase':
+			return tag.replace(/\s+/g, '_');
+		default:
+			return tag;  // No conversion for unsupported formats
+	}
+}
+
