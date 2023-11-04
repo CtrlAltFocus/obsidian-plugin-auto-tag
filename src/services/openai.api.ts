@@ -5,6 +5,10 @@ import {createDocumentFragment} from "../utils/utils";
 
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 
+const llmPromptTagSuggestions = 'You are ChatGPT, a helpful multi-lingual assistant and text analysis tool. You help with semantic understanding and text classification of received user input text and provide suggestions for tags that best allow to categorize and identify the text, for use in search engines or content link grouping. You will receive the input text from the user, delimited by the --start-- and --end-- tags.';
+
+const gptTagHandlingFunctionDescription = 'This function needs to receive a list of tags, that you suggest based on the best matching tags that describe the user-provided input text. Return at least 1 tag. Return at most 10 tags. The tags should be in the language of the user-provided input text.';
+
 export const OPENAI_API_MODELS = [
 	{
 		id: "gpt-3.5-turbo-0613",
@@ -47,9 +51,9 @@ export async function getTagSuggestions(inputText: string, openaiApiKey: string)
 	}
 
 	const gptFunction: GptFunction = {
-		name: 'getTagSuggestions',
+		name: 'handleTagSuggestions',
 		// TODO set max number of tags to return based on value in settings
-		description: 'Suggest the best matching tags that describe the provided input text. At least 1 tag returned.',
+		description: gptTagHandlingFunctionDescription,
 		parameters: {
 			type: 'object',
 			properties: {
@@ -57,7 +61,7 @@ export async function getTagSuggestions(inputText: string, openaiApiKey: string)
 					type: 'array',
 					// TODO Adjust prompt to allow tagging in asian languages, arabic, etc.
 					description:
-						'An array of tags. Come up with 2 to 10 tags. These can be used to tag the input text to help with search engines or grouping with related tag content. Tags can only contain lowercase letters and underscores.',
+						'An array of utf8 unicode values representing tags. Tags ideally should only contain lowercase letters and underscores. Tags might represent strings in various languages and alphabets.',
 					items: {
 						type: 'string',
 					},
@@ -113,12 +117,11 @@ export async function fetchOpenAIFunctionCall(openaiApiKey: string, inputText: s
 				messages: [
 					{
 						role: 'system',
-						content:
-							'You are ChatGPT, a helpful code assistant and text analysis tool. You help with semantic understanding of input text and providing suggestions for tags that best allow to categorize and identify the text, for use in search engines or content link grouping. You will receive the input text from the user.',
+						content: llmPromptTagSuggestions
 					},
 					{
 						role: 'user',
-						content: inputText,
+						content: "--start--\n" + inputText + "\n--end--",
 					},
 				],
 				functions: [gptFunction],

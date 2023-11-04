@@ -36,7 +36,16 @@ const getAutoTags = async (inputText: string, settings: AutoTagPluginSettings) =
 			"Comida Saudável"
 		];
 	} else if (settings.openaiApiKey.length > 0) {
-		autotags = await getTagSuggestions(inputText, settings.openaiApiKey) || [];
+		// Remove the frontmatter from the document; should not be taken into account for tag generation.
+		let mainInputText;
+		try {
+			const YAMLFrontMatter = /---\s*[\s\S]*?\s*---/g;
+			mainInputText = inputText.replace(YAMLFrontMatter, "");
+		} catch (err) {
+			throw new Error("Error removing YML from message" + err);
+		}
+
+		autotags = await getTagSuggestions(mainInputText, settings.openaiApiKey) || [];
 	} else {
 		const notice = createDocumentFragment(`<strong>Auto Tag plugin</strong><br>Error: OpenAI API key is missing. Please add it in the plugin settings.`);
 		new Notice(notice);

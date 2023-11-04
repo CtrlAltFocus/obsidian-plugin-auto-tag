@@ -14,6 +14,11 @@ Whether you're unsure about which tags to use, forget to add them, or simply wan
 - **OpenAI Powered**: Utilizes OpenAI's API to ensure accurate and relevant tag suggestions.
 - **Demo Mode**: Try out the plugin's functionality and settings combinations without needing an API key.
 
+For tags:
+- **Tag Format**: choose between kebak-case, snake_case, camelCase, PascalCase, and more.
+- **Language detection**: returns tags in the detected language of the note.
+- **Preview before insertion**: preview the tags before they are inserted into the note (and accept/ignore each tag).
+
 ## Beta notice
 
 This plugin is considered in beta, until it has been tested by a larger number of users.
@@ -48,3 +53,27 @@ If cheaper and good enough alternatives to OpenAI become available that you woul
 ## Feedback & Support
 
 If you have suggestions, issues, or just want to share your experience with the plugin, please create an issue on GitHub.
+
+## Release Notes
+
+0.2.11
+- Adds release notes to the readme file
+- Multi-lingual tags: tags suggested in the language of the selected text or document
+
+0.2.10
+- New settings option to choose the tag format (for new tag suggestions).
+- Demo tags updated to have 1 tag for 10 different languages (to verify that tag format applies in all languages).
+
+0.2.9
+- Fixes an issue where suggested tags could be made up of multiple words and the space in the tag would break the tag.
+  - "#healthy and tasty" would count as "#healthy" before, but will now display as #healthy-and-tasty".
+
+0.2.8
+- Adding a feedback form link to the settings and the Readme.
+- Improving log file handling; disabling "write to log file" setting by default.
+
+0.2.7
+- Improving code based on pull request feedback from the Obsidian team reviewers.
+
+0.2.6
+- First public release.
