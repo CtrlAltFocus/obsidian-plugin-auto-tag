@@ -1,3 +1,6 @@
+import {LlmModel} from "../services/models/openai.models";
+import {encodingForModel} from "js-tiktoken";
+
 /**
  * Creates a DocumentFragment from a HTML string, safely injecting user-provided values.
  *
@@ -54,3 +57,29 @@ export function customCaseConversion(tag: string, format: string): string {
 	}
 }
 
+/**
+ * Tokenizes a string and returns the tokens count.
+ *
+ * @param text
+ */
+export const getTokenCount = (text: string): number => {
+	const enc = encodingForModel("gpt-3.5-turbo-0613");
+	const tokens = enc.encode(text);
+	return tokens.length;
+}
+
+/**
+ * Given an input string and an LLM AI model data object with cost per token, returns the cost of the input string.
+ *
+ */
+export const calculateTokenCost = (text: string, modelData: LlmModel): { tokenCount: number, cost: number } => {
+	const tokenCount = getTokenCount(text);
+	const queryCost = tokenCount / 1000 * modelData.inputCost1KTokens;
+	const responseCost = tokenCount / 1000 * modelData.outputCost1KTokens;
+	const cost = queryCost + responseCost;
+
+	return {
+		tokenCount,
+		cost
+	};
+}

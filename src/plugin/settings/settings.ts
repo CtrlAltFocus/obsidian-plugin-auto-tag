@@ -1,19 +1,22 @@
 import {App, FileSystemAdapter, Notice, PluginSettingTab, Setting} from "obsidian";
-import {OPENAI_API_MODELS} from "src/services/openai.api";
 import AutoTagPlugin from "../autoTagPlugin";
 import {createDocumentFragment} from "src/utils/utils";
+import {OPENAI_API_MODELS} from "../../services/openaiModelsList";
+import {LlmModel} from "../../services/models/openai.models";
 
 export interface AutoTagPluginSettings {
 	useAutotagPrefix: boolean;
 	useFrontmatterAutotagsKey: boolean;
 	tagsToInsert: number;
 	tagsFormat: "kebabCase"|"snakeCase"|"pascalCase"|"camelCase"| "pascalSnakeCase"|"trainCase"|"constantCase";
+	checkCostEstimation: boolean;
 	showPreUpdateDialog: boolean;
 	showPostUpdateDialog: boolean;
 	demoMode: boolean;
 	writeToLogFile: boolean;
 	openaiApiKey: string;
-	openaiModel: string;
+	openaiModel: LlmModel;
+	openaiTemperature: number;
 }
 
 export const DEFAULT_SETTINGS: AutoTagPluginSettings = {
@@ -21,12 +24,14 @@ export const DEFAULT_SETTINGS: AutoTagPluginSettings = {
 	useFrontmatterAutotagsKey: false,
 	tagsToInsert: 3,
 	tagsFormat: "kebabCase",
+	checkCostEstimation: true,
 	showPreUpdateDialog: true,
 	showPostUpdateDialog: true,
 	demoMode: true,
 	writeToLogFile: false,
 	openaiApiKey: "",
-	openaiModel: OPENAI_API_MODELS[0].id,
+	openaiModel: OPENAI_API_MODELS[0],
+	openaiTemperature: 0.2,
 }
 
 export class AutoTagSettingTab extends PluginSettingTab {
@@ -142,6 +147,17 @@ export class AutoTagSettingTab extends PluginSettingTab {
 			});
 		});
 
+		new Setting(containerEl)
+		.setName("See estimated cost before taking action")
+		.setDesc(createDocumentFragment("Get an idea of the approximate API cost of fetching tags.<br>Depends on the chosen API service and model used."))
+		.addToggle(toggle => {
+			toggle.setValue(this.plugin.settings.checkCostEstimation);
+			toggle.onChange(async (toggleValue: boolean) => {
+				this.plugin.settings.checkCostEstimation = toggleValue;
+				await this.plugin.saveSettings();
+			});
+		});
+
 		/***************************************
 		 *    Demo settings
 		 ***************************************/
@@ -171,7 +187,7 @@ export class AutoTagSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 		.setName(`Service provider to find tags from text`)
-		.setDesc(createDocumentFragment(`For now only OpenAI is supported. More to come!<br>Ideas welcome (cheaper? more privacy focused?).`))
+		.setDesc(createDocumentFragment(`For now only OpenAI is supported.<br>Ideas and requests are welcome (for better/cheaper/more privacy focused options).`))
 		.addDropdown(dropdown => dropdown
 			.addOption("openai", 'OpenAI')
 			.setValue("openai")
@@ -179,17 +195,22 @@ export class AutoTagSettingTab extends PluginSettingTab {
 		.setDisabled(true);
 
 		new Setting(containerEl)
-		.setName('OpenAI model')
-		.setDesc(createDocumentFragment(`Which model to use depends on cost and size of notes.<br>The default option (${DEFAULT_SETTINGS.openaiModel}) should be the cheapest and be sufficient for most users.`))
-		.addDropdown(dropdown =>
-			OPENAI_API_MODELS.reduce((dropdown, model) => {
-				return dropdown.addOption(model.id, model.name);
-			}, dropdown)
-			.setValue(this.plugin.settings.openaiModel)
-			.onChange(async (modelId) => {
-				this.plugin.settings.openaiModel = modelId;
-				await this.plugin.saveSettings();
-			}));
+		.setName(`OpenAI API model`)
+		.setDesc(createDocumentFragment(`The OpenAI <strong>GPT-3.5 Turbo model</strong> is used by default (rather than GPT-4) as it's really good for this task and the cheapest choice. Contact me if this is not enough for your needs.`));
+
+		new Setting(containerEl)
+		.setName(`Predictability of the results`)
+		.setDesc(createDocumentFragment(`You can change how "creative" the results will be.<br>The default value ("More predictable") offers a good balance between creativity and predictability.`))
+			.addDropdown(dropdown => dropdown
+				.addOption("0.2", 'More predictable')
+				.addOption("0.9", 'More creative')
+				.setValue(`${this.plugin.settings.openaiTemperature}`)
+				.onChange(async (value) => {
+					this.plugin.settings.openaiTemperature = parseFloat(value);
+					await this.plugin.saveSettings();
+					console.debug('this.plugin.settings.openaiTemperature', this.plugin.settings.openaiTemperature);
+				})
+			);
 
 		new Setting(containerEl)
 		.setName('OpenAI API key')

@@ -12,3 +12,21 @@ export type GptFunction = {
     description?: string;
     parameters?: GptFunctionParameter;
 };
+
+export interface LlmModel {
+	id: string;
+	name: string;
+	description?: string;
+	features: ("function-calling")[];
+	context: number;
+	inputCost1KTokens: number;
+	outputCost1KTokens: number;
+	parameters?: {
+		maxTokens: number;
+		temperature: number;
+		topP: number;
+		presencePenalty: number;
+		frequencyPenalty: number;
+		stop: string[];
+	};
+}

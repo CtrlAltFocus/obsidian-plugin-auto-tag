@@ -1,5 +1,5 @@
 import React, {ReactElement} from "react";
-import {ToggleButton} from "../../../react/shared-components/ToggleButton";
+import {ToggleButton} from "../../../../react/shared-components/ToggleButton";
 import classNames from "classnames";
 
 type TagsPreviewListProps = {

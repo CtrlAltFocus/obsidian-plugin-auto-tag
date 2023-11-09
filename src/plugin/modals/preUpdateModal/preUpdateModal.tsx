@@ -2,7 +2,7 @@ import {App, Modal} from 'obsidian';
 import {AutoTagPluginSettings} from '../../settings/settings';
 import * as React from "react";
 import {Root, createRoot} from "react-dom/client";
-import {TagsPreviewList} from "./tagsPreviewList";
+import {TagsPreviewList} from "./components/tagsPreviewList";
 
 export class PreUpdateModal extends Modal {
 	settings: AutoTagPluginSettings;
