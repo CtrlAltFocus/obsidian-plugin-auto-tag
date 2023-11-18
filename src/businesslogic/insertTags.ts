@@ -14,6 +14,9 @@ import Logger from "../plugin/Logger";
 const getAutoTags = async (inputText: string, settings: AutoTagPluginSettings) => {
 	let autotags: string[];
 	if (settings.demoMode) {
+		// timeout to mimic API call
+		await new Promise(resolve => setTimeout(resolve, 2000));
+
 		autotags = [
 			// English
 			"Healthy and Tasty",
@@ -198,26 +201,29 @@ export const commandFnInsertTagsForSelectedText = async (editor: Editor, view: M
 		return;
 	}
 
-	// TODO get existing tags from the text, display them in the modal too
-
-	// TODO as long as we use any AI service, call a function to estimate the number of tokens in the selected text and then estimate the cost
-	// TODO if cost seems high or number of tokens is near the limit, display a warning and ask for confirmation
-
-	/**
-	 * Retrieve tag suggestions.
-	 */
-	const suggestedTags = await getAutoTags(selectedText, settings) || [];
-
 	if (settings.showPreUpdateDialog) {
-		new PreUpdateModal(app, settings, suggestedTags, async (acceptedTags: string[]) => {
+		const fetchTagsFunction = () => getAutoTags(selectedText, settings);
+
+		const onAccept = async (acceptedTags: string[]) => {
 			AutoTagPlugin.Logger.debug("Tags accepted for insertion:", acceptedTags);
 
 			/**
 			 * Insert only the tags accepted by the user in the modal.
 			 */
 			await insertTags(view, insertLocation, acceptedTags, editor, settings, initialCursorPos, selectedTextLength);
-		}).open();
+		};
+
+		const onCancel = () => {
+			AutoTagPlugin.Logger.debug("Tags insertion cancelled by user.");
+		}
+
+		new PreUpdateModal(app, settings, fetchTagsFunction, onAccept, onCancel).open();
 	} else {
+		/**
+		 * Retrieve tag suggestions.
+		 */
+		const suggestedTags = await getAutoTags(selectedText, settings) || [];
+
 		/**
 		 * Insert the tags in the note right away.
 		 */

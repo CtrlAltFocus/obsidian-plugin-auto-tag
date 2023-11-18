@@ -3,7 +3,7 @@ import {LlmModel} from "./models/openai.models";
 export const OPENAI_API_MODELS: LlmModel[] = [
 	{
 		id: "gpt-3.5-turbo-1106",
-		name: "GPT-3.5 Turbo (1106) [recommended]",
+		name: "GPT-3.5 Turbo (1106)",
 		features: ["function-calling"],
 		context: 16000,
 		inputCost1KTokens: 0.0010,

@@ -11,32 +11,31 @@ const llmPromptTagSuggestions = 'You are ChatGPT, a helpful multi-lingual assist
 
 const gptTagHandlingFunctionDescription = 'This function needs to receive a list of tags, that you suggest based on the best matching tags that describe the user-provided input text. Return at least 1 tag. Return at most 10 tags. The tags should be in the language of the user-provided input text.';
 
+export const gptFunction: GptFunction = {
+	name: 'handleTagSuggestions',
+	// TODO set max number of tags to return based on value in settings
+	description: gptTagHandlingFunctionDescription,
+	parameters: {
+		type: 'object',
+		properties: {
+			tags: {
+				type: 'array',
+				description:
+					'An array of utf8 unicode values representing tags. Tags ideally should only contain lowercase letters and underscores. Tags might represent strings in various languages and alphabets.',
+				items: {
+					type: 'string',
+				},
+			},
+		},
+		required: ['tags'],
+	},
+};
+
 export async function getTagSuggestions(settings: AutoTagPluginSettings, inputText: string, openaiApiKey: string): Promise<string[] | null> {
-	// console.debug('getTagSuggestions: settings', settings);
 	if (openaiApiKey === '' || !openaiApiKey) {
 		new Notice(createDocumentFragment(`<strong>Auto Tag plugin</strong><br>Error: OpenAI API key is missing. Please add it in the plugin settings.`));
 		return [];
 	}
-
-	const gptFunction: GptFunction = {
-		name: 'handleTagSuggestions',
-		// TODO set max number of tags to return based on value in settings
-		description: gptTagHandlingFunctionDescription,
-		parameters: {
-			type: 'object',
-			properties: {
-				tags: {
-					type: 'array',
-					description:
-						'An array of utf8 unicode values representing tags. Tags ideally should only contain lowercase letters and underscores. Tags might represent strings in various languages and alphabets.',
-					items: {
-						type: 'string',
-					},
-				},
-			},
-			required: ['tags'],
-		},
-	};
 
 	try {
 		const responseData: {
@@ -57,6 +56,26 @@ export async function getTagSuggestions(settings: AutoTagPluginSettings, inputTe
 	}
 
 	return [];
+}
+
+export function getOpenAIFunctionCallBody(settings: AutoTagPluginSettings, inputText: string) {
+	return JSON.stringify({
+		model: settings.openaiModel.id,
+		max_tokens: 350, // could set a multiple of the max number of tags desired
+		temperature: settings.openaiTemperature,
+		messages: [
+			{
+				role: 'system',
+				content: llmPromptTagSuggestions
+			},
+			{
+				role: 'user',
+				content: "--start--\n" + inputText + "\n--end--",
+			},
+		],
+		functions: [gptFunction],
+		function_call: {name: gptFunction.name},
+	});
 }
 
 /**
@@ -81,23 +100,7 @@ export async function fetchOpenAIFunctionCall(settings: AutoTagPluginSettings, o
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${openaiApiKey}`,
 			},
-			body: JSON.stringify({
-				model: settings.openaiModel.id,
-				max_tokens: 500, // could set a multiple of the max number of tags desired
-				temperature: settings.openaiTemperature,
-				messages: [
-					{
-						role: 'system',
-						content: llmPromptTagSuggestions
-					},
-					{
-						role: 'user',
-						content: "--start--\n" + inputText + "\n--end--",
-					},
-				],
-				functions: [gptFunction],
-				function_call: {name: gptFunction.name},
-			})
+			body: getOpenAIFunctionCallBody(settings, inputText)
 		};
 		AutoTagPlugin.Logger.log(`OpenAI API request (ID ${requestId}) starting...`);
 		const response: RequestUrlResponse = await requestUrl(

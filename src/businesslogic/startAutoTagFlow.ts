@@ -4,9 +4,16 @@ import {PreTagsFetchModal} from "../plugin/modals/preTagsFetchModal/preTagsFetch
 import {commandFnInsertTagsForSelectedText} from "./insertTags";
 
 export const commandFnShowPreTagsFetchModal = async (editor: Editor, view: MarkdownView, settings: AutoTagPluginSettings, insertLocation: "frontmatter" | "after-selection" | "before-selection" = "frontmatter") => {
+	const launchPreTagsFetchModal = async () => {
+		console.log('launchPreTagsFetchModal');
+		await commandFnInsertTagsForSelectedText(editor, view, settings, insertLocation);
+	}
+	const cancelPreTagsFetchModal = () => {
+		// console.log('cancelPreTagsFetchModal');
+	}
 	if (settings.checkCostEstimation) {
-		new PreTagsFetchModal(editor, view, settings).open();
+		new PreTagsFetchModal(editor, view, settings, launchPreTagsFetchModal, cancelPreTagsFetchModal).open();
 	} else {
-		commandFnInsertTagsForSelectedText(editor, view, settings, insertLocation);
+		await commandFnInsertTagsForSelectedText(editor, view, settings, insertLocation);
 	}
 };
