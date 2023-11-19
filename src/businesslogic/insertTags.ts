@@ -5,6 +5,7 @@ import {AutoTagPluginSettings} from "src/plugin/settings/settings";
 import {getTagSuggestions} from "src/services/openai.api";
 import {createDocumentFragment, customCaseConversion} from "src/utils/utils";
 import {kebabCase, camelCase, pascalCase, snakeCase, constantCase, pascalSnakeCase, trainCase} from "change-case";
+import Logger from "../plugin/Logger";
 
 // Several combinations:
 // - insert demo tags or real tags (real -> fetch them first)
@@ -13,6 +14,9 @@ import {kebabCase, camelCase, pascalCase, snakeCase, constantCase, pascalSnakeCa
 const getAutoTags = async (inputText: string, settings: AutoTagPluginSettings) => {
 	let autotags: string[];
 	if (settings.demoMode) {
+		// timeout to mimic API call
+		await new Promise(resolve => setTimeout(resolve, 2000));
+
 		autotags = [
 			// English
 			"Healthy and Tasty",
@@ -42,10 +46,11 @@ const getAutoTags = async (inputText: string, settings: AutoTagPluginSettings) =
 			const YAMLFrontMatter = /---\s*[\s\S]*?\s*---/g;
 			mainInputText = inputText.replace(YAMLFrontMatter, "");
 		} catch (err) {
-			throw new Error("Error removing YML from message" + err);
+			await Logger.error("Error removing frontmatter from message", err);
+			throw new Error("Error removing frontmatter from message" + err);
 		}
 
-		autotags = await getTagSuggestions(mainInputText, settings.openaiApiKey) || [];
+		autotags = await getTagSuggestions(settings, mainInputText, settings.openaiApiKey) || [];
 	} else {
 		const notice = createDocumentFragment(`<strong>Auto Tag plugin</strong><br>Error: OpenAI API key is missing. Please add it in the plugin settings.`);
 		new Notice(notice);
@@ -55,12 +60,6 @@ const getAutoTags = async (inputText: string, settings: AutoTagPluginSettings) =
 	try {
 		// Avoid empty tags
 		autotags = autotags.filter((tag) => tag.length > 0);
-
-		// Remove accents from letters (unneeded unless I add an option for users of languages such as french)
-		// autotags = autotags.map((tag) => tag.normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
-
-		// Remove punctuation and various symbols that have no place in tags (unneeded probably; keeping as backup as it's tested and works well)
-		// autotags = autotags.map((tag) => tag.replace(/[-_/\\@#$%^&*{}"'|<>~`’”§±¡™£¢∞¶•ªº–≠“‘æ…≥≤œ∑´®†¥¨ˆøπåß∂ƒ©˙∆˚¬Ω≈√∫˜()[\]=+]+/g, ''));
 
 		// Apply tag formatting preference
 		autotags = autotags.map((tag) => {
@@ -202,26 +201,29 @@ export const commandFnInsertTagsForSelectedText = async (editor: Editor, view: M
 		return;
 	}
 
-	// TODO get existing tags from the text, display them in the modal too
-
-	// TODO as long as we use any AI service, call a function to estimate the number of tokens in the selected text and then estimate the cost
-	// TODO if cost seems high or number of tokens is near the limit, display a warning and ask for confirmation
-
-	/**
-	 * Retrieve tag suggestions.
-	 */
-	const suggestedTags = await getAutoTags(selectedText, settings) || [];
-
 	if (settings.showPreUpdateDialog) {
-		new PreUpdateModal(app, settings, suggestedTags, async (acceptedTags: string[]) => {
+		const fetchTagsFunction = () => getAutoTags(selectedText, settings);
+
+		const onAccept = async (acceptedTags: string[]) => {
 			AutoTagPlugin.Logger.debug("Tags accepted for insertion:", acceptedTags);
 
 			/**
 			 * Insert only the tags accepted by the user in the modal.
 			 */
 			await insertTags(view, insertLocation, acceptedTags, editor, settings, initialCursorPos, selectedTextLength);
-		}).open();
+		};
+
+		const onCancel = () => {
+			AutoTagPlugin.Logger.debug("Tags insertion cancelled by user.");
+		}
+
+		new PreUpdateModal(app, settings, fetchTagsFunction, onAccept, onCancel).open();
 	} else {
+		/**
+		 * Retrieve tag suggestions.
+		 */
+		const suggestedTags = await getAutoTags(selectedText, settings) || [];
+
 		/**
 		 * Insert the tags in the note right away.
 		 */

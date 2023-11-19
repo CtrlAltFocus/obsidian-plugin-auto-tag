@@ -1,32 +1,35 @@
 import {App, FileSystemAdapter, Notice, PluginSettingTab, Setting} from "obsidian";
-import {OPENAI_API_MODELS} from "src/services/openai.api";
 import AutoTagPlugin from "../autoTagPlugin";
 import {createDocumentFragment} from "src/utils/utils";
+import {OPENAI_API_MODELS} from "../../services/openaiModelsList";
+import {LlmModel} from "../../services/models/openai.models";
 
 export interface AutoTagPluginSettings {
 	useAutotagPrefix: boolean;
 	useFrontmatterAutotagsKey: boolean;
-	tagsToInsert: number;
 	tagsFormat: "kebabCase"|"snakeCase"|"pascalCase"|"camelCase"| "pascalSnakeCase"|"trainCase"|"constantCase";
+	checkCostEstimation: boolean;
 	showPreUpdateDialog: boolean;
 	showPostUpdateDialog: boolean;
 	demoMode: boolean;
 	writeToLogFile: boolean;
 	openaiApiKey: string;
-	openaiModel: string;
+	openaiModel: LlmModel;
+	openaiTemperature: number;
 }
 
 export const DEFAULT_SETTINGS: AutoTagPluginSettings = {
 	useAutotagPrefix: true,
 	useFrontmatterAutotagsKey: false,
-	tagsToInsert: 3,
 	tagsFormat: "kebabCase",
+	checkCostEstimation: true,
 	showPreUpdateDialog: true,
 	showPostUpdateDialog: true,
 	demoMode: true,
 	writeToLogFile: false,
 	openaiApiKey: "",
-	openaiModel: OPENAI_API_MODELS[0].id,
+	openaiModel: OPENAI_API_MODELS[0],
+	openaiTemperature: 0.2,
 }
 
 export class AutoTagSettingTab extends PluginSettingTab {
@@ -48,12 +51,8 @@ export class AutoTagSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 		.setName('Feedback')
-		.setDesc(createDocumentFragment(`This plugin is new. Your feedback helps shape what it becomes.<br><a href="https://forms.gle/6XWpoHKXRqzSKyZj7" target="_blank">Link to your feedback form</a>.`))
-
-		new Setting(containerEl)
-		.setName(`Expected something different? or more?`)
-		.setDesc(createDocumentFragment(`Please <strong>share your feedback</strong>, dislikes, requests.<br>- by email at <a href="mailto:control.alt.focus@gmail.com">control.alt.focus@gmail.com</a><br>- on X (= Twitter) <a href="https://twitter.com/ctrl_alt_focus" target="_blank"><strong>@ctrl_alt_focus</strong></a>`));
-
+		.setDesc(createDocumentFragment(`This plugin is new. Your feedback helps shape what it becomes.<br>- <a href="https://forms.gle/6XWpoHKXRqzSKyZj7" target="_blank">Link to your feedback form</a><br>- by email at <a href="mailto:control.alt.focus@gmail.com">control.alt.focus@gmail.com</a><br>- on X (= Twitter) <a href="https://twitter.com/ctrl_alt_focus" target="_blank"><strong>@ctrl_alt_focus</strong></a>`))
+		
 		/***************************************
 		 *    Main tag settings
 		 ***************************************/
@@ -87,26 +86,6 @@ export class AutoTagSettingTab extends PluginSettingTab {
 		});
 
 		new Setting(containerEl)
-		.setName('Maximum number of tags to request')
-		.setDesc('The actual number of tags returned may be less than this number, depending on the AI provider.')
-		.addDropdown(dropdown => dropdown
-		.addOption("1", '1 tag')
-		.addOption("2", '2 tags')
-		.addOption("3", '3 tags')
-		.addOption("4", '4 tags')
-		.addOption("5", '5 tags')
-		.addOption("6", '6 tags')
-		.addOption("7", '7 tags')
-		.addOption("8", '8 tags')
-		.addOption("9", '9 tags')
-		.addOption("10", '10 tags')
-		.setValue(`${this.plugin.settings.tagsToInsert}`)
-		.onChange(async (value) => {
-			this.plugin.settings.tagsToInsert = parseInt(value);
-			await this.plugin.saveSettings();
-		}));
-
-		new Setting(containerEl)
 		.setName('How to format tags?')
 		.setDesc('You can indicate your own preference. Only applies to new suggested tags, does not update existing tags.')
 		.addDropdown(dropdown => dropdown
@@ -123,6 +102,17 @@ export class AutoTagSettingTab extends PluginSettingTab {
 			await this.plugin.saveSettings();
 		}));
 
+		new Setting(containerEl)
+		.setName("See estimated cost before taking action")
+		.setDesc(createDocumentFragment("Get an idea of the approximate API cost of fetching tags.<br>Depends on the chosen API service and model used."))
+		.addToggle(toggle => {
+			toggle.setValue(this.plugin.settings.checkCostEstimation);
+			toggle.onChange(async (toggleValue: boolean) => {
+				this.plugin.settings.checkCostEstimation = toggleValue;
+				await this.plugin.saveSettings();
+			});
+		});
+
 		/*
 		Possible names for this:
 		** "Tag change approval" (or "Tag change confirmation")
@@ -132,7 +122,7 @@ export class AutoTagSettingTab extends PluginSettingTab {
 		"Tag review and edit" (or ** "Auto tags review and approval")
 		*/
 		new Setting(containerEl)
-		.setName("Auto tags review and approval BEFORE applying applying any changes")
+		.setName("Review and approve suggested tags before inserting them")
 		.setDesc(createDocumentFragment("Shows the suggested tags that will be added to the note.<br>You can make changes before accepting them."))
 		.addToggle(toggle => {
 			toggle.setValue(this.plugin.settings.showPreUpdateDialog);
@@ -171,7 +161,7 @@ export class AutoTagSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 		.setName(`Service provider to find tags from text`)
-		.setDesc(createDocumentFragment(`For now only OpenAI is supported. More to come!<br>Ideas welcome (cheaper? more privacy focused?).`))
+		.setDesc(createDocumentFragment(`For now only OpenAI is supported.<br>Ideas and requests are welcome (for better/cheaper/more privacy focused options).`))
 		.addDropdown(dropdown => dropdown
 			.addOption("openai", 'OpenAI')
 			.setValue("openai")
@@ -179,17 +169,22 @@ export class AutoTagSettingTab extends PluginSettingTab {
 		.setDisabled(true);
 
 		new Setting(containerEl)
-		.setName('OpenAI model')
-		.setDesc(createDocumentFragment(`Which model to use depends on cost and size of notes.<br>The default option (${DEFAULT_SETTINGS.openaiModel}) should be the cheapest and be sufficient for most users.`))
-		.addDropdown(dropdown =>
-			OPENAI_API_MODELS.reduce((dropdown, model) => {
-				return dropdown.addOption(model.id, model.name);
-			}, dropdown)
-			.setValue(this.plugin.settings.openaiModel)
-			.onChange(async (modelId) => {
-				this.plugin.settings.openaiModel = modelId;
-				await this.plugin.saveSettings();
-			}));
+		.setName(`OpenAI API model`)
+		.setDesc(createDocumentFragment(`The OpenAI <strong>GPT-3.5 Turbo model</strong> is used by default (rather than GPT-4) as it's really good for this task and the cheapest choice. Contact me if this is not enough for your needs.`));
+
+		new Setting(containerEl)
+		.setName(`Predictability of the results`)
+		.setDesc(createDocumentFragment(`You can change how "creative" the results will be.<br>The default value ("More predictable") offers a good balance between creativity and predictability.`))
+			.addDropdown(dropdown => dropdown
+				.addOption("0.2", 'More predictable')
+				.addOption("0.9", 'More creative')
+				.setValue(`${this.plugin.settings.openaiTemperature}`)
+				.onChange(async (value) => {
+					this.plugin.settings.openaiTemperature = parseFloat(value);
+					await this.plugin.saveSettings();
+					console.debug('this.plugin.settings.openaiTemperature', this.plugin.settings.openaiTemperature);
+				})
+			);
 
 		new Setting(containerEl)
 		.setName('OpenAI API key')
