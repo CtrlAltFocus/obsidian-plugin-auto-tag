@@ -56,9 +56,15 @@ If you have suggestions, issues, or just want to share your experience with the 
 
 ## Release Notes
 
+- 0.3.0
+  - Displays a loading state while tags are being fetched (otherwise, as openAI API can be really slow, this creates doubt about whether the plugin is working or not).
+  - Improves the auto tag suggestions query, to return better quality tags.
+  - Adds a choice regarding whether tag suggestions will be more predictable (similar results if you try several times) or more creative (in case you are not satisfied with the results and hope for something different by trying again).
+  - Adds the possibility of having a cost estimation popup based on the selected text, before launching the auto tag suggestions (useful for the curious, or those with particularly large files or small budgets).
+  - Removes the setting for choosing the max number of tags to fetch (as the cost of fetching more or less tags is minimal and not having this limit may improve the results).
 - 0.2.11
-  - Adds release notes to the readme file
-  - Multi-lingual tags: tags suggested in the language of the selected text or document
+  - Adds release notes to the readme file.
+  - Multi-lingual tags: tags suggested in the language of the selected text or document.
 - 0.2.10
   - New settings option to choose the tag format (for new tag suggestions).
   - Demo tags updated to have 1 tag for 10 different languages (to verify that tag format applies in all languages).
